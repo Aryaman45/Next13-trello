@@ -12,6 +12,7 @@ import { Header } from "./header";
 import { Description } from "./description";
 import { Actions } from "./actions";
 import { Activity } from "./activity";
+import { Comments } from "./comments";
 
 export const CardModal = () => {
   const id = useCardModal((state) => state.id);
@@ -21,6 +22,12 @@ export const CardModal = () => {
   const { data: cardData } = useQuery<CardWithList>({
     queryKey: ["card", id],
     queryFn: () => fetcher(`/api/cards/${id}`),
+  });
+
+  
+  const { data: commentdata } = useQuery<Comment[]>({
+    queryKey: ["comment", id],
+    queryFn: () => fetcher(`/api/cards/${id}/comments`),
   });
 
   const { data: auditLogsData } = useQuery<AuditLog[]>({
@@ -33,7 +40,7 @@ export const CardModal = () => {
       open={isOpen}
       onOpenChange={onClose}
     >
-      <DialogContent>
+      <DialogContent className="h-[80vh] overflow-y-auto">
         {!cardData
           ? <Header.Skeleton />
           : <Header data={cardData} />
@@ -48,6 +55,10 @@ export const CardModal = () => {
               {!auditLogsData
                 ? <Activity.Skeleton />
                 : <Activity items={auditLogsData} />
+              }
+              {!commentdata
+               ? <Comments.Skeleton />
+               : <Comments cardId={id} data={commentdata} /> 
               }
             </div>
           </div>
